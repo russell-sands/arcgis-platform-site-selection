@@ -1,8 +1,21 @@
-const apiKey = '';
+/* Set your API Key to Authenticate with the ArcGIS Platform
+NOTE: You will be building an application which uses the GeoEnrichment service from the ArcGIS Platform
+      - You can create an account and API Key here https://developers.arcgis.com/
+      - Your API Key *must* be scoped to the following services:
+        ~ Geocoding (not stored) 
+        ~ Service Area
+        ~ GeoEnrichment
+      - Adding these services to your API key will require configuring billing on your account
+*/
+const apiKey = 'YOUR_API_KEY';
+
+// ArcGIS REST JS authentication
 const authentication = new arcgisRest.ApiKey({
   key: apiKey,
 });
 
+// Analysis variables - to browse all avaialable data see the browser here https://doc.arcgis.com/en/esri-demographics/data/data-browser.htm
+// For this application, it helps to remove the collection name from the variable (browser JSON is -> colection.variable)
 const analysisVariables = [
   'DPOP_CY',
   'MEDVAL_CY',
@@ -14,27 +27,28 @@ const analysisVariables = [
   'PCI_CY',
 ];
 
-// Get Input Elements
+// Get each element by it's ID value
 const inputAddress = document.getElementById('input-address');
 const inputRadius = document.getElementById('input-radius');
 const inputUnits = document.getElementById('input-unit');
 const inputMode = document.getElementById('input-mode');
 
-// Result container
+// Get the div that we will place our result in to by it's ID
 const resultContainer = document.getElementById('result-container');
 
-// Submit button
+// Define the behavior for the submit button
 const buttonSubmit = document.querySelector('#button-submit');
 
-// Set Submit callback
+// Set an asynchronus callback on the button
 buttonSubmit.addEventListener('click', async () => {
-  // Get the inputs
+  // Get the values that each of the inputs is currently set to
   const address = inputAddress.value;
-  const bufferRadii = [inputRadius.value];
+  const bufferRadii = [inputRadius.value]; // API Expects an array of radii
   const bufferUnits = inputUnits.value;
   const travelMode = inputMode.value;
 
-  // Create the study area
+  // Create an object for our study area that we will pass to the REST JS API
+  // This *looks* the same as it did in app_start, but our values are now based on inputs
   const studyAreas = [
     {
       address: { text: address },
@@ -45,25 +59,35 @@ buttonSubmit.addEventListener('click', async () => {
     },
   ];
 
+  // Use the ArcGIS REST JS API to query the demographic data for our Study Area
   console.log('submitting analysis');
-
   const response = await arcgisRest.queryDemographicData({
     studyAreas,
     analysisVariables,
     authentication,
   });
 
-  // App will only allow a single ring, so OK to grab this
+  // Get the attributes and field aliases for the result.
+  // NOTE: If you decide to use multiple rings or sites at once, you will need to
+  //       adapt how this is working
   // prettier-ignore
   const attributes = response.results[0].value.FeatureSet[0].features[0].attributes
   const aliases = response.results[0].value.FeatureSet[0].fieldAliases;
 
-  // Build the card for the result
+  // For the result that we get back, create a new calcite card.
+  /* First:
+    - Create an open calcite card
+    - Set the address as the card's title
+    - Create a div to put the enriched content in
+   */
   let newHtml = `<calcite-card>
     <span slot="title">${address}</span>
     <span slot="subtitle">${bufferRadii[0]} ${bufferUnits} ${travelMode}</span>
     <div class="geoenriched-content">
   `;
+
+  // Then, for each attribute in the result lookup the alias and
+  // value and add these as a data row
   for (const attribute in attributes) {
     if (analysisVariables.includes(attribute)) {
       newHtml += `
@@ -71,11 +95,12 @@ buttonSubmit.addEventListener('click', async () => {
         <div class="data-label">${aliases[attribute]}</div>
         <div class="data-value">${attributes[attribute]}</div>
       </div>`;
-      console.log(aliases[attribute], attributes[attribute]);
     }
   }
+
+  // Finally, close the content containing div and the calcite card
   newHtml += `</div></calcite-card>`;
 
-  // Add the card
+  // Add the new calcite card's HTML to the result container
   resultContainer.innerHTML += newHtml;
 });
