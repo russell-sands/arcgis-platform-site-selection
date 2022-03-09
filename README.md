@@ -42,13 +42,13 @@ Key topics in Esri's Documentation:
 Calcite components are a distributed set of composable, purpose-built web components for building great web experiences. These components make it easy to capture user input and display information. In this step, you will accomplish three objectives:
 
 1. Using Esri's Calcite Design Language, add a button component with the label "Add Site"
-   - styles.css has classes that can help with the display of the button.
+   - Check the styles in the HTML for classes that can help with the display of the button.
 1. Modify the application so that the request to the GeoEnrichemnt service only happens when the user clicks on the button
 1. When the GeoEnrichment response comes back, display the results in a calcite card
    - Use the Card's Title and Subtitle to display information about the site address and the study area
    - For each attribute in the response, add that attribute as a new row to the card
      - The response contains the alias for each field, which can improve the display
-     - styles.css has classes for a data row, label, and value which you may use to improve the display
+     - Check the styles in the HTML for classes for a data row, label, and value which you may use to improve the display
 
 ### Key Documentation
 
