@@ -7,7 +7,7 @@ NOTE: You will be building an application which uses the GeoEnrichment service f
         ~ GeoEnrichment
       - Adding these services to your API key will require configuring billing on your account
 */
-const apiKey = '';
+const apiKey = 'YOUR_API_KEY';
 
 // ArcGIS REST JS authentication
 const authentication = new arcgisRest.ApiKey({
@@ -80,8 +80,8 @@ buttonSubmit.addEventListener('click', async () => {
     <span slot="subtitle">${bufferRadii[0]} ${bufferUnits} ${travelMode}</span>
     <div class="geoenriched-content">
   `;
-  
-  // Then, for each attribute in the result lookup the alias and 
+
+  // Then, for each attribute in the result lookup the alias and
   // value and add these as a data row
   for (const attribute in attributes) {
     if (analysisVariables.includes(attribute)) {
